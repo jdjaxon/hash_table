@@ -26,6 +26,7 @@ typedef struct
     uint64_t  num_items;
 } hash_table_t;
 
+
 /*
  * @brief Creates a hash table and return a pointer to it.
  *
@@ -94,7 +95,6 @@ void destroy_table (hash_table_t **);
  * @return hash_table_t * of the newly created table on success; NULL on failure
  */
 hash_table_t * rehash_table (hash_table_t **);
-
 
 
 #endif /* HASHTABLE_H */
