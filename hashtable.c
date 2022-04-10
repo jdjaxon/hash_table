@@ -184,4 +184,70 @@ lookup_user (hash_table_t * p_table, const char * name)
 } /* lookup_user */
 
 
+/*
+ * @brief Deletes a user from the table.
+ *
+ * @param p_table: Point to the table.
+ * @param name: Name of user to be deleted.
+ * @return true on success; false on failure.
+ */
+bool
+delete_user (hash_table_t * p_table, const char * name)
+{
+    if (!p_table || !p_table->items || !name)
+    {
+        fprintf(stderr, "error: delete failed\n");
+        return false;
+    }
+
+    uint64_t name_len = strlen(name);
+    uint64_t idx = djb_hash(name, name_len) % p_table->capacity;
+
+    if ((EINVAL == errno) && (0 == idx))
+    {
+        perror("unable to hash username.");
+        return false;
+    }
+
+    user_t * p_temp = p_table->items[idx];
+    user_t * p_prev = NULL;
+
+    while (p_temp)
+    {
+        if (!p_temp->name)
+        {
+            fprintf(stderr, "error: delete failed\n");
+            return false;
+        }
+
+        if (strncmp(p_temp->name, name, UINT16_MAX) == 0)
+        {
+            break;
+        }
+
+        p_prev = p_temp;
+        p_temp = p_temp->next;
+    }
+
+    if (!p_temp)
+    {
+        printf("delete_user: user not found\n");
+        return false;
+    }
+
+    if (!p_prev)
+    {
+        // Case where user is the head of the list.
+        //
+        p_table->items[idx] = p_temp->next;
+    }
+    else
+    {
+        p_prev->next = p_temp->next;
+    }
+
+    destroy_user(&p_temp);
+    return true;
+} /* delete_user */
+
 /*** end of file ***/
