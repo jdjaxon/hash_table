@@ -357,4 +357,34 @@ rehash_table (hash_table_t ** pp_old_ht)
 } /* rehash_table */
 
 
+/*
+ * @brief Simple function that hashes a string and returns the result.
+ * CITATION: http://www.partow.net/programming/hashfunctions/#RSHashFunction
+ *
+ * @param key The string to be hashed.
+ * @param length The length of the provided string.
+ * @return uint64_t The resultant hash on success; 0 on failure and sets errno
+ * to EINVAL.
+ */
+static uint64_t
+djb_hash(const char * key, uint64_t length)
+{
+    if (!key)
+    {
+        errno = EINVAL;
+        return 0;
+    }
+
+    uint64_t hash = 5381;
+    uint8_t shift = 5;
+
+    for (uint64_t idx = 0; idx < length; ++key, ++idx)
+    {
+        hash = ((hash << shift) + hash) + (*key);
+    }
+
+    return hash;
+} /* djb_hash */
+
+
 /*** end of file ***/
