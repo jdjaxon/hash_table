@@ -132,4 +132,56 @@ insert_user (hash_table_t ** pp_table, user_t * p_user)
 } /* insert_user */
 
 
+/*
+ * @brief Locates an entry in the table by name.
+ *
+ * @param p_table: Pointer to table.
+ * @param name: Name of potential user.
+ * @return user_t * upon success; NULL on failure.
+ */
+user_t *
+lookup_user (hash_table_t * p_table, const char * name)
+{
+    if (!p_table || !p_table->items || !name)
+    {
+        fprintf(stderr, "error: lookup failed\n");
+        return NULL;
+    }
+
+    uint64_t name_len = strlen(name);
+    uint64_t idx = djb_hash(name, name_len) % p_table->capacity;
+
+    if ((EINVAL == errno) && (0 == idx))
+    {
+        perror("unable to hash username.");
+        return false;
+    }
+
+    user_t * p_temp = p_table->items[idx];
+
+    while (p_temp)
+    {
+        if (!p_temp->name)
+        {
+            fprintf(stderr, "error: lookup failed\n");
+            return NULL;
+        }
+
+        if (strncmp(p_temp->name, name, UINT16_MAX) == 0)
+        {
+            break;
+        }
+
+        p_temp = p_temp->next;
+    }
+
+    if (!p_temp)
+    {
+        printf("lookup_user: user not found\n");
+    }
+
+    return p_temp;
+} /* lookup_user */
+
+
 /*** end of file ***/
