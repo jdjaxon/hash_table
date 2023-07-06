@@ -290,4 +290,71 @@ destroy_table (hash_table_t ** pp_table)
     return;
 } /* destroy_table */
 
+
+/*
+ * @brief When the current table hits the established load factor, this function
+ * creates a new hash table and rehashes all entries in the old table and places
+ * them in their appropriate positions in the newly created table. This is a
+ * costly operation, but it is necessary to maintain the efficiency of the
+ * table.
+ *
+ * @param pp_old_ht: Double pointer to the old table.
+ * @return hash_table_t * of the newly created table on success; NULL on failure
+ */
+hash_table_t *
+rehash_table (hash_table_t ** pp_old_ht)
+{
+    if (!pp_old_ht || !(*pp_old_ht))
+    {
+        fprintf(stderr, "error: rehashing failed\n");
+        return NULL;
+    }
+
+    uint64_t new_cap = (*pp_old_ht)->capacity * 2;
+    hash_table_t * p_new_ht = calloc(new_cap, sizeof(hash_table_t));
+
+    if (!p_new_ht)
+    {
+        fprintf(stderr, "error: rehashing failed\n");
+        return NULL;
+    }
+
+    p_new_ht->capacity = new_cap;
+    p_new_ht->items = calloc(p_new_ht->capacity, sizeof(user_t *));
+
+    if (!p_new_ht->items)
+    {
+        fprintf(stderr, "error: hash table creation failed\n");
+        free(p_new_ht);
+        p_new_ht = NULL;
+        return p_new_ht;
+    }
+
+    if ((*pp_old_ht)->items)
+    {
+        for (uint64_t idx = 0; idx < (*pp_old_ht)->capacity; ++idx)
+        {
+            if ((*pp_old_ht)->items[idx])
+            {
+                user_t * p_temp = (*pp_old_ht)->items[idx];
+                user_t * p_next = NULL;
+
+                while (p_temp)
+                {
+                    p_next = p_temp->next;
+                    insert_user(&p_new_ht, p_temp);
+                    p_temp = p_next;
+                }
+            }
+        }
+    }
+
+    free((*pp_old_ht)->items);
+    (*pp_old_ht)->items = NULL;
+    free(*pp_old_ht);
+    *pp_old_ht = NULL;
+    return p_new_ht;
+} /* rehash_table */
+
+
 /*** end of file ***/
