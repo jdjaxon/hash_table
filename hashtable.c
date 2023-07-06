@@ -409,4 +409,51 @@ destroy_user (user_t ** pp_user)
 } /* destroy_user */
 
 
+/*
+ * @brief Prints all entries in the table.
+ *
+ * @param p_table: Pointer to the table.
+ */
+static void
+print_table (hash_table_t * p_table)
+{
+    if (!p_table)
+    {
+        fprintf(stderr, "error: print failed\n");
+        return;
+    }
+
+    if (!p_table->items)
+    {
+        printf("hash table is empty\n");
+        return;
+    }
+
+    printf("\tPrinting hash table...\n");
+
+    for (uint64_t idx = 0; idx < p_table->capacity; ++idx)
+    {
+        if (!p_table->items[idx])
+        {
+            printf("\t%ld\t_____\n", idx);
+        }
+        else
+        {
+            printf("\t%ld\t", idx);
+            user_t * p_temp = p_table->items[idx];
+
+            while (p_temp)
+            {
+                printf("%s -> ", p_temp->name);
+                p_temp = p_temp->next;
+            }
+
+            printf("\n");
+        }
+    }
+
+    printf("\t--- Done ---\n\n");
+} /* print_table */
+
+
 /*** end of file ***/
