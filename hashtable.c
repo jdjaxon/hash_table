@@ -38,5 +38,50 @@ create_table (void)
     return p_table;
 } /* create_table */
 
+/*
+ * @brief Creates a user.
+ *
+ * @param name: User's name.
+ * @param name_len: Length of user's name.
+ * @param passwd: User's password
+ * @param pw_len: Length of user's password.
+ * @param perms: User's permission level.
+ * @return user_t * on success; NULL on failure.
+ */
+user_t *
+create_user (const char * name,
+             uint16_t name_len,
+             const char * passwd,
+             uint16_t pw_len,
+             uint8_t perms)
+{
+    user_t * p_user = NULL;
+    if (!name)
+    {
+        goto cleanup;
+    }
+
+    p_user = calloc(1, sizeof(user_t));
+
+    if (!p_user)
+    {
+        goto cleanup;
+    }
+
+    p_user->name = calloc(name_len + 1, sizeof(char));
+    memcpy(p_user->name, name, name_len);
+    p_user->passwd = calloc(pw_len + 1, sizeof(char));
+    memcpy(p_user->passwd, passwd, pw_len);
+    p_user->perms = perms;
+
+    return p_user;
+cleanup:
+    fprintf(stderr, "error: user creation failed\n");
+    free(p_user);
+    p_user = NULL;
+    return p_user;
+} /* create_user */
+
+
 
 /*** end of file ***/
