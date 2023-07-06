@@ -250,4 +250,44 @@ delete_user (hash_table_t * p_table, const char * name)
     return true;
 } /* delete_user */
 
+
+/*
+ * @brief Destroys the hash table.
+ *
+ * @param pp_table: Double pointer to the table.
+ */
+void
+destroy_table (hash_table_t ** pp_table)
+{
+    if (!pp_table || !(*pp_table))
+    {
+        return;
+    }
+
+    if ((*pp_table)->items)
+    {
+        for (uint64_t idx = 0; idx < (*pp_table)->capacity; ++idx)
+        {
+            if ((*pp_table)->items[idx])
+            {
+                user_t * p_temp = (*pp_table)->items[idx];
+                user_t * p_next = NULL;
+
+                while (p_temp)
+                {
+                    p_next = p_temp->next;
+                    destroy_user(&p_temp);
+                    p_temp = p_next;
+                }
+            }
+        }
+    }
+
+    free((*pp_table)->items);
+    (*pp_table)->items = NULL;
+    free(*pp_table);
+    *pp_table = NULL;
+    return;
+} /* destroy_table */
+
 /*** end of file ***/
