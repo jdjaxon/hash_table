@@ -38,6 +38,7 @@ create_table (void)
     return p_table;
 } /* create_table */
 
+
 /*
  * @brief Creates a user.
  *
@@ -82,6 +83,53 @@ cleanup:
     return p_user;
 } /* create_user */
 
+
+/*
+ * @brief Inserts a user item into the hashtable.
+ *
+ * In the event of a collision, this algorithm inserts the new user at the
+ * beginning of the chain of users, in an effort to maintain efficiency
+ * upon insertion.
+ *
+ * @param pp_table: Double pointer to hashtable.
+ * @param p_user: Pointer to user to be added.
+ * @return true on success; false on failure.
+ */
+bool
+insert_user (hash_table_t ** pp_table, user_t * p_user)
+{
+    if (!pp_table || !(*pp_table)->items || !p_user || !p_user->name)
+    {
+        fprintf(stderr, "error: unable to insert user\n");
+        return false;
+    }
+
+    float new_lf = ((*pp_table)->num_items + 1) / (float)(*pp_table)->capacity;
+
+    if (new_lf > LOAD_FACTOR)
+    {
+        (*pp_table) = rehash_table(pp_table);
+
+        if (!(*pp_table))
+        {
+            return false;
+        }
+    }
+
+    uint64_t res = djb_hash(p_user->name, strlen(p_user->name));
+
+    if ((EINVAL == errno) && (0 == res))
+    {
+        perror("unable to hash username");
+        return false;
+    }
+
+    uint64_t idx = res % (*pp_table)->capacity;
+    p_user->next = (*pp_table)->items[idx];
+    (*pp_table)->items[idx] = p_user;
+    ++(*pp_table)->num_items;
+    return true;
+} /* insert_user */
 
 
 /*** end of file ***/
