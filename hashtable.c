@@ -387,4 +387,26 @@ djb_hash(const char * key, uint64_t length)
 } /* djb_hash */
 
 
+/*
+ * @brief Destroys the provided user, freeing the user's name and password.
+ *
+ * @param pp_user: Double pointer to the user.
+ */
+static void
+destroy_user (user_t ** pp_user)
+{
+    if (!pp_user || !(*pp_user))
+    {
+        return;
+    }
+
+    free((*pp_user)->name);
+    (*pp_user)->name = NULL;
+    free((*pp_user)->passwd);
+    (*pp_user)->passwd = NULL;
+    free(*pp_user);
+    *pp_user = NULL;
+} /* destroy_user */
+
+
 /*** end of file ***/
